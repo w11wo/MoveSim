@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import pdb
 import time
@@ -9,6 +7,7 @@ import logging
 import hashlib
 import numpy as np
 
+
 def hash_args(*args):
     # json.dumps will keep the dict keys always sorted.
     string = json.dumps(args, sort_keys=True, default=str)  # frozenset
@@ -17,7 +16,7 @@ def hash_args(*args):
 
 def use_gpu(idx):
     # 0->2,3->1,1->3,2->0
-    map = {0:2, 3:1, 1:3, 2:0}
+    map = {0: 2, 3: 1, 1: 3, 2: 0}
     return map[idx]
 
 
@@ -52,18 +51,15 @@ def get_gps(gps_file):
 
 def read_data_from_file(fp):
     """
-    read a bunch of trajectory data from txt file
-    :param fp:
-    :return:
+    Read trajectory data from a txt file (one trajectory per line, space-separated ints).
+    Returns a list of lists to support variable-length trajectories.
     """
     dat = []
-    with open(fp, 'r') as f:
-        m = 0
-        lines = f.readlines()
-        for idx, line in enumerate(lines):
+    with open(fp, "r") as f:
+        for line in f:
             tmp = line.split()
-            dat += [[int(t) for t in tmp]]
-    return np.asarray(dat, dtype='int64')
+            dat.append([int(t) for t in tmp])
+    return dat
 
 
 def write_data_to_file(fp, dat):
@@ -75,65 +71,31 @@ def write_data_to_file(fp, dat):
     dat : list
         list of trajs
     """
-    with open(fp, 'w') as f:
+    with open(fp, "w") as f:
         for i in range(len(dat)):
             line = [str(p) for p in dat[i]]
-            line_s = ' '.join(line)
-            f.write(line_s + '\n')
+            line_s = " ".join(line)
+            f.write(line_s + "\n")
 
 
 def read_logs_from_file(fp):
     dat = []
-    with open(fp, 'r') as f:
+    with open(fp, "r") as f:
         m = 0
         lines = f.readlines()
         for idx, line in enumerate(lines):
             tmp = line.split()
             dat += [[float(t) for t in tmp]]
-    return np.asarray(dat, dtype='float')
+    return np.asarray(dat, dtype="float")
 
-
-def prep_workspace(workspace, datasets, oridata):
-    """
-    prepare a workspace directory
-    :param workspace:
-    :param oridata:
-    :return:
-    """
-    data_path = '/data/stu/yangzeyu/trajgen'
-    if not os.path.exists(data_path+'/%s/%s' % (datasets,workspace)):
-        os.mkdir(data_path+'/%s/%s' % (datasets,workspace))
-    if not os.path.exists(data_path+'/%s/%s/data' % (datasets,workspace)):
-        os.mkdir(data_path+'/%s/%s/data' % (datasets,workspace))
-    if not os.path.exists(data_path+'/%s/%s/logs' % (datasets,workspace)):
-        os.mkdir(data_path+'/%s/%s/logs' % (datasets,workspace))
-    if not os.path.exists(data_path+'/%s/%s/figs' % (datasets,workspace)):
-        os.mkdir(data_path+'/%s/%s/figs' % (datasets,workspace))
-    '''
-    shutil.copy("../data/%s/real.data" %
-                oridata, "../%s/%s/data/real.data" % (datasets,workspace))
-    shutil.copy("../data/%s/val.data" %
-                oridata, "../%s/%s/data/val.data" % (datasets,workspace))
-    shutil.copy("../data/%s/test.data" %
-                oridata, "../%s/%s/data/test.data" % (datasets,workspace))
-    shutil.copy("../data/%s/dispre_10.data" %
-                oridata, "../%s/%s/data/dispre.data" % (datasets,workspace))
-    '''
-    with open(data_path+'/%s/%s/logs/loss.log' % (datasets,workspace), 'w') as f:
-        pass
-
-    with open(data_path+'/%s/%s/logs/jsd.log' % (datasets,workspace), 'w') as f:
-        pass
-    
 
 def get_workspace_logger(datasets):
-   
-    data_path = '../data'  
+    data_path = "preprocessed"
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)s: %(message)s")
-    fh = logging.FileHandler(data_path+'/%s/logs/all.log' % (datasets), mode='w')
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s: %(message)s")
+    os.makedirs(data_path + "/%s/logs" % (datasets), exist_ok=True)
+    fh = logging.FileHandler(data_path + "/%s/logs/all.log" % (datasets), mode="w")
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
     ch = logging.StreamHandler()

@@ -8,8 +8,7 @@ from torch.nn import functional as F
 
 
 class Embedding(nn.Module):
-    """Common embedding network.
-    """
+    """Common embedding network."""
 
     def __init__(self, total_locations, embedding_dim):
         super(Embedding, self).__init__()

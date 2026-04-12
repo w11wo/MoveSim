@@ -4,8 +4,7 @@ import torch.nn as nn
 
 
 class DAN(nn.Module):
-    """Distance awareness network.
-    """
+    """Distance awareness network."""
 
     def __init__(self, total_locs):
         super(DAN, self).__init__()
